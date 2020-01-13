@@ -113,3 +113,10 @@ then I wanted to download and install bioconductor packages faster, so I edited
  added
 options(BioC_mirror="https://mirrors.tuna.tsinghua.edu.cn/bioconductor")
  as a new line, to the end of the file. and it worked
+  some uses
+>source("http://bioconductor.org/biocLite.R")
+#指定一个离你最近的国内镜像
+>options(BioC_mirror="http://mirrors.ustc.edu.cn/bioc/")
+>biocLite("包名")
+I don't like it. because if you quit and start R session again, it won't remember and retain
+it will restore to the original and slow address
