@@ -107,3 +107,9 @@ $ /usr/bin/xml2-config --cflag的输出目录 （
 问题解决。
 
 I used the second solution, or 2), and it worked
+
+then I wanted to download and install bioconductor packages faster, so I edited
+/usr/local/lib64/R/library/base/R/Rprofile
+ added
+options(BioC_mirror="https://mirrors.tuna.tsinghua.edu.cn/bioconductor")
+ as a new line, to the end of the file. and it worked
