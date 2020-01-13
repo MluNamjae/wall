@@ -1,0 +1,109 @@
+#download R 3.6 tar.gz from tuna
+tar -xf #extract
+cd R-3.6*
+#./configure # I ran this as root; error reported: checking if libcurl is version 7 and >= 7.22.0... no
+#configure: error: libcurl >= 7.22.0 library and headers are required with support for https
+# I tried  yum install libcurl
+Loaded plugins: fastestmirror, langpacks
+Loading mirror speeds from cached hostfile
+ * base: mirrors.aliyun.com
+ * extras: mirrors.aliyun.com
+ * updates: mirrors.aliyun.com
+Package libcurl-7.29.0-54.el7_7.1.x86_64 already installed and latest version
+Nothing to do
+  I used  
+which
+ and
+locate
+, and found multiple libcurl on the server, in /usr/bin/, in anaconda2, etc
+all of them were higher than 7.22; curl and curl-config command were both executable
+  I looked up on the Internet and found this article https://www.jianshu.com/p/edb234eed915
+according to this article, I ctrl d to go back to an ordinary user, and then ./configure, then the configuration was successful
+  then, 
+sudo make  ;  sudo make install
+ both were successful
+  then, this new R was available for me and root, but not for other users. I don't care about others. so, let it be, whatever
+su root
+R
+>install.packages("RCurl")
+Error: package or namespace load failed for 'RCurl' in dyn.loda(file, DLLpath = DLLpath, ...);
+ unable to load shared object '/usr/local/lib64/R/library/00LOCK-RCurl/00new/RCurl/libs/RCurl.so';
+  libiconv.so.2: cannot open shared object file: No such file or directory
+Error: loading failed
+Execution halted
+...
+I thought, and tried again, the method in the article mentioned above:  R  as an ordinary user, and I installed RCurl successfully
+during which process, it told me that the writing permission was not adequate, so I  su  again,  cd /usr/local/lib64/
+and  chmod -R 777 R/  so that RCurl was still installed in this file, without creating a personal library directory in my own account
+then I  q()  to exit the session, and  su  and start a new  R  session as root
+  after it, some other packages met some problem when I tried to install, the error message was like:
+cannot lock the library directory to execute installation...
+I thought, maybe this is because of the problem caused by 777, and then,
+cd /usr/local/lib64/R/ ; chmod -R 755 library/
+then the package was installed successfully
+  then
+>install.packages("XML")
+also met some problem:
+checking for xmlParseFile in -lxml2... yes
+You are trying to use a version 2.* edition of libxml
+but an incompatible library. The header files and library seem to be
+mismatched. If you have specified LIBXML_INCDIR, make certain to also
+specify an appropriate LIBXML_LIBDIR if the libxml2 library is not in the defaultdirectories.
+ I found the solution from http://wap.sciencenet.cn/blog-773206-1155793.html?mobile=1
+ whose author said she found the explanation and solution from https://forums.fedoraforum.org/showthread.php?315915-can-not-install-xml-package-in-R
+ and https://stackoverflow.com/questions/40682615/cannot-install-xml-package-in-r/48355121#48355121
+ and said:
+ 这应该是由于 “it looks from your output that R was looking for libxml-1.8 headers but found the libxml2 headers instead” 的关系，于是按照错误提示，系统目前默认从libxml2目录（anacoda3中的libxml2目录）中查找对应文件导致无法顺利编译，而解决方案应为将LIBXML_INCDIR以及LIBXML_DIR指定为libxml-1.8的对应目录，而为了以后python的使用着想，不建议采用链接题主所用的直接删除anacoda3的方式。
+
+
+
+为了确认这一点，首先在terminal里：
+
+$ xml2-config --cflags
+
+输出结果为（根据不同用户习惯anaconda安装路径不同）：
+
+I/opt/pya/anaconda3/include/libxml2 -I/opt/pya/anaconda3/include
+
+而
+
+$ locate xml2-config
+
+则输出
+
+/opt/pya/anaconda3/bin/xml2-config
+/opt/pya/anaconda3/lib/cmake/libxml2/libxml2-config.cmake
+/opt/pya/anaconda3/pkgs/libxml2-2.9.7-h26e45fe_0/bin/xml2-config
+/opt/pya/anaconda3/pkgs/libxml2-2.9.7-h26e45fe_0/lib/cmake/libxml2/libxml2-config.cmake
+/opt/pya/anaconda3/pkgs/libxml2-2.9.7-h26e45fe_0/share/man/man1/xml2-config.1
+/opt/pya/anaconda3/pkgs/libxml2-2.9.8-h26e45fe_1/bin/xml2-config
+/opt/pya/anaconda3/pkgs/libxml2-2.9.8-h26e45fe_1/lib/cmake/libxml2/libxml2-config.cmake
+/opt/pya/anaconda3/pkgs/libxml2-2.9.8-h26e45fe_1/share/man/man1/xml2-config.1
+/opt/pya/anaconda3/share/man/man1/xml2-config.1
+/usr/bin/xml2-config
+/usr/lib64/cmake/libxml2/libxml2-config.cmake
+/usr/share/man/man1/xml2-config.1.gz
+
+
+
+所以需要在安装XML的过程中（作者只尝试了第二条），
+
+1） 或者在.bashrc中将LIBXML_INCDIR设置为
+
+$ /usr/bin/xml2-config --cflag的输出目录 （
+
+再完成后续安装 （作者本人未尝试）；
+
+2） 或者参考 的第一条回答，
+
+进入R，
+
+>Sys.setenv(XML_CONFIG="/usr/bin/xml2-config") #指定安装时libxml2的目录
+
+>install.packages("XML")
+
+
+
+问题解决。
+
+I used the second solution, or 2), and it worked
