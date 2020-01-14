@@ -1,3 +1,4 @@
+before this, there is already R 3.5 in /share/apps/, available to every user
 #download R 3.6 tar.gz from tuna
 tar -xf #extract
 cd R-3.6*
@@ -22,7 +23,8 @@ according to this article, I ctrl d to go back to an ordinary user, and then ./c
   then, 
 sudo make  ;  sudo make install
  both were successful
-  then, this new R was available for me and root, but not for other users. I don't care about others. so, let it be, whatever
+  then, this new R was available for me and root, but not for other users. they can still only use R 3.5
+  I don't care about others. so, let it be, whatever
 su root
 R
 >install.packages("RCurl")
