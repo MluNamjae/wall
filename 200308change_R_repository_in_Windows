@@ -1,4 +1,0 @@
-for example, in E:\Program Files\R\R-3.6.2\etc\Rprofile.site
-add these 2 lines to the file:
-options(BioC_mirror="https://mirrors.tuna.tsinghua.edu.cn/bioconductor")
-options("repos" = c(CRAN="https://mirrors.tuna.tsinghua.edu.cn/CRAN/"))
